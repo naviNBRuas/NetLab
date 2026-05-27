@@ -1,0 +1,19 @@
+{
+  "name": "netlab",
+  "version": "1.0.0",
+  "description": "NetLab — Interactive network learning platform (browser-only)",
+  "license": "MIT",
+  "scripts": {
+    "start": "npx live-server .",
+    "dev": "npx live-server .",
+    "lint": "eslint js --ext .js || true",
+    "build": "node build.js",
+    "test": "node ./scripts/run-sanity-tests.js || true",
+    "test:e2e": "npx playwright test"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "esbuild": "^0.18.0",
+    "@playwright/test": "^1.40.0"
+  }
+}

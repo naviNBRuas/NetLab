@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NetLab Pro — Advanced Network Analysis</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NetLab Pro — advanced packet capture, protocol dissector, attack lab, NAT/ARP viewer, live graphs, and quizzes for network learning.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:
+  radial-gradient(900px 520px at 50% 0%,rgba(0,229,255,.10),transparent 45%),
+  radial-gradient(600px 420px at 15% 18%,rgba(139,92,246,.12),transparent 40%),
+  linear-gradient(180deg,#06111f 0%,#040a14 100%);
+color:#bfeaff;font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;font-size:11px;height:100vh;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:#112030}
+button,input,select{font-family:inherit;font-size:10px;cursor:pointer}
+input,select{background:#040d18;color:#9ab5cc;border:1px solid #0d1e32;padding:3px 6px;border-radius:2px;outline:none}
+
+#topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(6,13,27,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid #0d1e35;flex-shrink:0;min-height:38px;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.16)}
+.logo{color:#00e5ff;font-weight:700;font-size:13px;letter-spacing:2px}
+.badge{font-size:7px;padding:2px 7px;border:1px solid #001a2e;border-radius:999px;color:#00e5ff;letter-spacing:1px;background:rgba(0,26,46,.45)}
+.sep{color:#0d1e35;margin:0 3px}
+.tab{padding:5px 11px;border:1px solid #0d1e35;background:rgba(4,10,20,.36);color:#9bd0ff;border-radius:999px;font-size:9px;transition:all .16s;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.tab.on{border-color:#00e5ff;background:#001525;color:#00e5ff;box-shadow:0 0 0 1px rgba(0,229,255,.08)}
+.tab:hover:not(.on){border-color:#142840;color:#bfeaff;transform:translateY(-1px)}
+.ml{margin-left:auto}
+.flex{display:flex;align-items:center;gap:5px}
+
+#body{display:flex;flex:1;overflow:hidden;min-height:0;min-width:0}
+
+#sidebar{width:clamp(190px,20vw,250px);background:rgba(6,12,24,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-right:1px solid #0b1a30;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:inset -1px 0 0 rgba(255,255,255,.02);min-width:0}
+#sidebar-tabs{display:flex;border-bottom:1px solid #0b1a30;flex-shrink:0;padding:6px 6px 0;gap:4px}
+.stab{flex:1;padding:5px 6px;border:1px solid transparent;border-bottom:none;background:rgba(4,10,20,.34);color:#bfeaff;font-size:8px;letter-spacing:1px;font-family:inherit;cursor:pointer;border-radius:999px 999px 0 0}
+.stab.on{border-color:#0b1a30 #0b1a30 transparent;border-bottom-color:transparent;color:#00e5ff;background:#001020}
+#sidebar-content{flex:1;overflow-y:auto;padding:10px 8px}
+
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#main-tabs{display:flex;background:rgba(6,12,24,.9);border-bottom:1px solid #0b1a30;padding:6px 8px 0;flex-shrink:0;overflow-x:auto;gap:4px}
+.mtab{padding:5px 10px;border:1px solid transparent;border-bottom:none;background:rgba(4,10,20,.34);color:#bfeaff;font-size:8px;letter-spacing:1px;white-space:nowrap;font-family:inherit;cursor:pointer;border-radius:999px 999px 0 0}
+.mtab.on{border-color:#0b1a30 #0b1a30 transparent;border-bottom-color:transparent;color:#00e5ff;background:#001020}
+#main-content{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+
+.slbl{font-size:7px;color:#00e5ff;letter-spacing:3px;margin:7px 0 5px;display:block}
+.srow{display:flex;align-items:center;gap:5px;margin-bottom:3px;padding:4px 5px;border:1px solid #0b1a30;border-radius:2px;background:transparent;width:100%;color:#2a5570;font-size:9px;text-align:left;cursor:pointer}
+.srow.on{border-color:var(--sc);background:color-mix(in srgb,var(--sc) 9%,#060c18);color:var(--sc)}
+.hdiv{border-top:1px solid #0b1a30;margin:6px 0}
+
+.panel{flex:1;overflow-y:auto;padding:10px}
+.pcard{background:linear-gradient(180deg,rgba(4,12,24,.96),rgba(4,10,20,.84));border:1px solid #0b1a30;border-radius:10px;padding:10px;margin-bottom:10px;box-shadow:0 12px 24px rgba(0,0,0,.12)}
+.ptitle{font-size:7px;color:#00e5ff;letter-spacing:2px;margin-bottom:7px}
+.ptext{font-size:8px;color:#bfeaff;line-height:1.9}
+
+/* Capture */
+.cap-row{display:flex;align-items:center;gap:5px;padding:4px 6px;font-size:8px;border-bottom:1px solid #050c18;cursor:pointer;transition:background .08s}
+.cap-row:hover{background:#060f1e}
+.cap-row.sel{background:#071936}
+.cap-no{color:#0e2840;min-width:24px}
+.cap-time{color:#bfeaff;min-width:50px}
+.cap-src{min-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap-dst{min-width:95px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cap-proto{min-width:46px;font-weight:700}
+.cap-len{min-width:36px;text-align:right;color:#bfeaff}
+.cap-info{flex:1;color:#bfeaff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Hex */
+.hex-grid{font-family:monospace;font-size:8px;line-height:2;color:#bfeaff}
+.hex-offset{color:#0e2840;margin-right:8px;display:inline-block;min-width:36px}
+.hex-ascii{color:#bfeaff;margin-left:8px}
+
+/* Attacks */
+.atk-card{background:#040c18;border:1px solid #0b1a30;border-radius:2px;padding:8px;margin-bottom:7px}
+.atk-name{font-size:10px;color:#ff4455;margin-bottom:3px;font-weight:700}
+.atk-desc{font-size:8px;color:#bfeaff;line-height:1.8;margin-bottom:6px}
+.atk-btn{padding:4px 10px;border:1px solid #ff4455;background:#1a0008;color:#ff4455;border-radius:2px;font-size:9px;font-family:inherit}
+.atk-btn:hover{background:#260010}
+.def-btn{padding:4px 10px;border:1px solid #00e5ff;background:#001525;color:#00e5ff;border-radius:2px;font-size:9px;font-family:inherit;margin-left:5px}
+.atk-log{margin-top:7px;font-size:8px;line-height:1.9;border-top:1px solid #0b1a30;padding-top:5px}
+.atk-step{padding:2px 0 2px 5px;border-left:2px solid;margin-bottom:1px}
+.atk-threat{border-color:#ff4455;color:#ff4455}
+.atk-info{border-color:#2a5570;color:#bfeaff}
+.atk-warn{border-color:#ffc700;color:#ffc700}
+.atk-ok{border-color:#00ff88;color:#00ff88}
+
+/* NAT */
+.nat-table{width:100%;border-collapse:collapse;font-size:8px}
+.nat-table th{color:#00e5ff;font-size:7px;letter-spacing:1px;padding:4px 5px;border-bottom:1px solid #0b1a30;text-align:left}
+.nat-table td{padding:3px 5px;border-bottom:1px solid #050c18;color:#bfeaff}
+.nat-table td:first-child{color:#9ab5cc}
+.nat-table tr:hover td{background:#050f1c}
+.arp-cell{background:#040c18;border:1px solid #0b1a30;border-radius:8px;padding:6px 7px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 16px rgba(0,0,0,.10)}
+.arp-ip{font-size:9px;color:#9ab5cc}.arp-mac{font-size:8px;color:#00e5ff;font-family:monospace}.arp-ttl{font-size:7px;color:#bfeaff}
+
+/* Protocol steps */
+.proto-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;padding:8px;background:#040c18;border:1px solid #0b1a30;border-radius:10px;cursor:pointer;transition:all .12s;box-shadow:0 8px 16px rgba(0,0,0,.08)}
+.proto-step.done{border-color:#00ff88;background:#001408}
+.proto-step.active{border-color:#ffc700;background:#140e00}
+.ps-num{width:18px;height:18px;border-radius:50%;border:1px solid;display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-top:1px}
+.ps-title{font-size:9px;font-weight:700;margin-bottom:2px}
+.ps-desc{font-size:8px;color:#bfeaff;line-height:1.7}
+.ps-pkt{font-size:7px;margin-top:3px;padding:2px 5px;background:#050c18;border-radius:1px;border:1px solid #0b1a30;color:#bfeaff}
+
+/* Graphs */
+.graph-wrap{background:#040c18;border:1px solid #0b1a30;border-radius:10px;padding:10px;margin-bottom:10px;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.graph-title{font-size:7px;color:#00e5ff;letter-spacing:2px;margin-bottom:6px}
+
+/* Quiz */
+.quiz-q{font-size:10px;color:#9ab5cc;margin-bottom:8px;line-height:1.7}
+.quiz-opt{display:block;width:100%;padding:6px 9px;border:1px solid #0b1a30;background:transparent;color:#bfeaff;border-radius:8px;font-size:9px;font-family:inherit;text-align:left;margin-bottom:4px;cursor:pointer;transition:all .12s}
+.quiz-opt:hover{border-color:#142840;color:#bfeaff}
+.quiz-opt.correct{border-color:#00ff88;background:#001408;color:#00ff88}
+.quiz-opt.wrong{border-color:#ff4455;background:#1a0008;color:#ff4455}
+.quiz-explain{font-size:8px;color:#bfeaff;line-height:1.8;margin-top:6px;padding-top:6px;border-top:1px solid #0b1a30;display:none}
+.quiz-next{padding:4px 12px;border:1px solid #00e5ff;background:#001525;color:#00e5ff;border-radius:2px;font-size:9px;font-family:inherit;margin-top:6px;display:none;cursor:pointer}
+
+/* Buttons */
+.btn-sm{padding:3px 8px;border:1px solid #0b1a30;background:transparent;color:#bfeaff;border-radius:2px;font-size:8px;font-family:inherit;cursor:pointer}
+.btn-sm:hover{border-color:#142840;color:#bfeaff}
+.btn-primary{border-color:#00e5ff!important;background:#001525!important;color:#00e5ff!important}
+.btn-danger{border-color:#ff4455!important;background:#1a0008!important;color:#ff4455!important}
+.btn-ok{border-color:#00ff88!important;background:#001408!important;color:#00ff88!important}
+
+@media (max-width: 1024px){
+  html,body{font-size:10px}
+  #topbar{padding:6px 10px}
+  #sidebar{width:clamp(175px,24vw,225px)}
+  .tab,.mtab,.stab{padding-inline:9px}
+}
+
+@media (max-width: 860px){
+  html,body{height:auto;min-height:100vh;overflow:auto}
+  #body{flex-direction:column;overflow:visible}
+  #sidebar{width:100%;border-right:none;border-bottom:1px solid #0b1a30;max-height:32vh}
+  #main{min-height:68vh}
+  #main-tabs,#sidebar-tabs{padding-inline:8px}
+  #main-content,#sidebar-content{padding:9px 8px}
+}
+
+@media (max-width: 640px){
+  #topbar{gap:4px;padding:6px 8px}
+  .logo{font-size:12px;letter-spacing:1px}
+  .badge{display:none}
+  .tab,.mtab,.stab{font-size:7px;padding:4px 8px}
+  #sidebar{max-height:28vh}
+  #main{min-height:72vh}
+  .pcard{padding:9px}
+  .ptext,.cap-row,.atk-desc,.quiz-q{line-height:1.7}
+}
+
+/* Button focus + small drawer styles */
+.btn{display:inline-flex;align-items:center;gap:.4ch;padding:.35rem .6rem;border-radius:8px;border:0;background:transparent;color:inherit;font-family:inherit;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.btn:focus{outline:none}
+.btn:focus-visible{box-shadow:0 0 0 4px color-mix(in srgb,#60a5fa 22%, transparent);transform:translateY(-1px)}
+
+@media (max-width:860px){
+  body.sidebar-open #sidebar{position:fixed;left:8px;top:52px;z-index:60;border-radius:8px;box-shadow:0 20px 40px rgba(0,0,0,.5);max-height:70vh;overflow:auto}
+  body.sidebar-open #main{pointer-events:none;filter:blur(.18px) brightness(.95)}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar" role="navigation" aria-label="Pro module top bar">
+  <span class="logo">◉ NETLAB</span>
+  <span class="ver">v1.0.0</span>
+  <button id="toggle-sidebar" class="btn-sm" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle sidebar">☰</button>
+  <span class="badge">PRO MODULE</span>
+  <span class="sep">│</span>
+  <div id="pro-tabs" role="tablist" aria-label="Pro module tabs">
+    <button class="tab on" data-t="capture" tabindex="0" role="tab" aria-label="Packet Capture">📡 Packet Capture</button>
+    <button class="tab" data-t="attacks" tabindex="0" role="tab" aria-label="Attack Lab">⚔️ Attack Lab</button>
+    <button class="tab" data-t="protocols" tabindex="0" role="tab" aria-label="Protocol Walkthroughs">🔄 Protocols</button>
+    <button class="tab" data-t="nat" tabindex="0" role="tab" aria-label="NAT and ARP">🗺️ NAT / ARP</button>
+    <button class="tab" data-t="graphs" tabindex="0" role="tab" aria-label="Live Graphs">📊 Live Graphs</button>
+    <button class="tab" data-t="quiz" tabindex="0" role="tab" aria-label="Quiz">🎓 Quiz</button>
+  </div>
+  <div class="ml flex">
+    <span class="cap-status" id="cap-status">● CAPTURING</span>
+  </div>
+</div>
+
+<div id="body">
+  <div id="sidebar">
+    <div id="sidebar-tabs" role="tablist" aria-label="Sidebar tabs">
+      <button class="stab on" data-st="filters" tabindex="0" role="tab" aria-label="Filters">FILTERS</button>
+      <button class="stab" data-st="legend" tabindex="0" role="tab" aria-label="Legend">LEGEND</button>
+      <button class="stab" data-st="ref" tabindex="0" role="tab" aria-label="Reference">REF</button>
+    </div>
+    <div id="sidebar-content"></div>
+  </div>
+
+  <div id="main" role="main" aria-label="Pro analysis main">
+    <div id="main-tabs" role="tablist" aria-label="Main tabs">
+      <button class="mtab on" data-mt="list" tabindex="0" role="tab" aria-label="Packet List">PACKET LIST</button>
+      <button class="mtab" data-mt="detail" tabindex="0" role="tab" aria-label="Dissect packet">DISSECT</button>
+      <button class="mtab" data-mt="hex" tabindex="0" role="tab" aria-label="Hex dump">HEX DUMP</button>
+      <button class="mtab" data-mt="stream" tabindex="0" role="tab" aria-label="Stream">STREAM</button>
+    </div>
+    <div id="main-content"></div>
+  </div>
+</div>
+
+<!-- Bundled script (built to dist/) — falls back to source during development -->
+<script src="dist/pro.bundle.js"></script>
+<script>if(typeof window.capPkts==='undefined'){var s=document.createElement('script');s.src='js/pro.js';document.body.appendChild(s);}</script>
+<script>
+// Sidebar toggle + keyboard shortcut (S) for Pro page
+(function(){
+  const t=document.getElementById('toggle-sidebar');
+  if(!t) return;
+  t.addEventListener('click',()=>{const open=document.body.classList.toggle('sidebar-open');t.setAttribute('aria-expanded',String(open));});
+  document.addEventListener('keydown',e=>{if(e.target && /input|textarea|select/i.test(e.target.tagName))return; if(e.key==='s'||e.key==='S'){e.preventDefault();t.click();}});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NetLab — Network Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* (styles omitted for brevity; preserved from original) */
+:root{--left-w:148px;--right-w:286px}
+html,body{background:linear-gradient(180deg,#07111f 0%,#040a14 100%);color:#bfeaff;font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;overflow:hidden;height:100vh;display:flex;flex-direction:column;font-size:11px}
+</style>
+</head>
+<body>
+
+<div id="topbar" role="navigation" aria-label="Simulator top bar">
+  <span class="logo">◉ NETLAB</span><span class="ver">v1.0.0</span>
+  <span class="sep">│</span>
+  <div class="flex" id="sc-tabs"></div>
+  <span class="sep ml-a">│</span>
+  <div class="flex">
+    <span class="spd-lbl">SPD</span>
+    <button class="spd-btn" data-s="0.5" tabindex="0" role="button" aria-label="Speed half">½×</button>
+    <button class="spd-btn active" data-s="1" tabindex="0" role="button" aria-label="Speed normal">1×</button>
+    <button class="spd-btn" data-s="2" tabindex="0" role="button" aria-label="Speed double">2×</button>
+    <button class="spd-btn" data-s="3" tabindex="0" role="button" aria-label="Speed triple">3×</button>
+  </div>
+  <!-- Drawer toggles for small screens -->
+  <button id="toggle-left" class="small-btn btn" aria-controls="left" aria-expanded="false" aria-label="Toggle left panel">☰</button>
+  <button id="toggle-right" class="small-btn btn" aria-controls="right" aria-expanded="false" aria-label="Toggle right panel">▤</button>
+  <button id="rbtn" class="run-btn run-run" tabindex="0" role="button" aria-label="Pause or run simulation">⏸ PAUSE</button>
+</div>
+
+<div id="main" role="main" aria-label="Topology simulator main">
+  <div id="left">
+    <span class="slbl">DEVICES</span>
+    <!-- device buttons omitted for brevity -->
+  </div>
+
+  <button id="l-resize" type="button" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar" aria-valuemin="110" aria-valuemax="260" aria-valuenow="148" tabindex="0"></button>
+
+  <div id="cw">
+    <div id="badges">
+      <div id="b-add" class="badge badge-add" hidden></div>
+      <div id="b-conn" class="badge badge-conn" hidden></div>
+    </div>
+    <div id="hud">
+      <div class="hud-chip" id="h-pkts">📦 0</div>
+      <div class="hud-chip" id="h-topo">🖧 0N 0L</div>
+      <div class="hud-chip hud-bw" id="h-bw">↑ 0 pps</div>
+      <div class="hud-chip hud-loss" id="h-loss">⚠ 0% loss</div>
+      <div class="hud-chip hud-lat" id="h-lat">⏱ 0 ms</div>
+      <div class="hud-chip hud-lab" id="h-lab">🧪 0 flows</div>
+    </div>
+    <svg id="ns" viewBox="0 0 820 580" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+          <path d="M36 0L0 0 0 36" fill="none" stroke="#090f1e" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+      <g id="el"></g>
+      <g id="pl"></g>
+      <g id="nl"></g>
+    </svg>
+  </div>
+
+  <button id="r-resize" type="button" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize right sidebar" aria-valuemin="220" aria-valuemax="360" aria-valuenow="286" tabindex="0"></button>
+
+  <div id="right">
+    <div id="rtabs">
+      <button class="rt active" data-r="info">INFO</button>
+      <button class="rt" data-r="pkt">PACKET</button>
+      <button class="rt" data-r="osi">OSI</button>
+      <button class="rt" data-r="tcp">TCP</button>
+      <button class="rt" data-r="tools">TOOLS</button>
+      <button class="rt" data-r="vlan">VLAN</button>
+      <button class="rt" data-r="route">ROUTING</button>
+      <button class="rt" data-r="log">LOG</button>
+    </div>
+    <div id="rc"></div>
+  </div>
+</div>
+
+<!-- Bundled script (built to dist/) — falls back to source during development -->
+<script src="../dist/simulator.bundle.js"></script>
+<script>if(typeof window.loadSc==='undefined'){var s=document.createElement('script');s.src='../src/js/simulator.js';document.body.appendChild(s);}</script>
+<script>
+// Inline fallback for drawer toggles and keyboard shortcuts (ensures immediate availability)
+(function(){
+  const l=document.getElementById('toggle-left'), r=document.getElementById('toggle-right');
+  if(l){l.addEventListener('click',()=>{const open=document.body.classList.toggle('drawer-left-open'); l.setAttribute('aria-expanded',String(open)); if(open)document.body.classList.remove('drawer-right-open');});}
+  if(r){r.addEventListener('click',()=>{const open=document.body.classList.toggle('drawer-right-open'); r.setAttribute('aria-expanded',String(open)); if(open)document.body.classList.remove('drawer-left-open');});}
+  document.addEventListener('keydown',e=>{if(e.target && /input|textarea|select/i.test(e.target.tagName))return; if(e.code==='Space'){e.preventDefault();document.getElementById('rbtn')?.click();} else if(e.key==='f'||e.key==='F'){e.preventDefault();l?.click();} else if(e.key==='h'||e.key==='H'){e.preventDefault();r?.click();} else if(e.key==='c'||e.key==='C'){e.preventDefault();document.getElementById('connbtn')?.click();}});
+})();
+</script>
+</body>
+</html>

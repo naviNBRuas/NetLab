@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NetLab — Network Learning Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NetLab — interactive network learning platform: topology simulator, packet visualizer, and advanced analysis tools (no install, runs in the browser).">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{min-height:100%}
+body{background:
+  radial-gradient(900px 520px at 50% 0%,rgba(0,229,255,.12),transparent 45%),
+  radial-gradient(600px 420px at 15% 18%,rgba(99,102,241,.12),transparent 40%),
+  linear-gradient(180deg,#06111f 0%,#050b17 100%);
+color:#9ab5cc;font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:clamp(20px,4vw,44px);line-height:1.6}
+.skip-link{position:absolute;left:12px;top:-48px;background:#001525;color:#00e5ff;border:1px solid #00e5ff;border-radius:999px;padding:8px 12px;z-index:20;transition:top .18s ease;text-decoration:none;font-size:11px;letter-spacing:1px}
+.skip-link:focus{top:12px}
+.logo{color:#00e5ff;font-weight:800;font-size:clamp(28px,5vw,42px);letter-spacing:clamp(3px,1vw,6px);margin-bottom:10px;text-align:center;text-shadow:0 12px 28px rgba(0,229,255,.16);overflow-wrap:break-word;word-break:break-word}
+.logo span{color:#00ff88}
+.tagline{font-size:clamp(10px,1.6vw,13px);color:#bfeaff;letter-spacing:clamp(2px,.5vw,3px);text-align:center;margin-bottom:16px;opacity:.92}
+.hero-note{font-size:clamp(9px,1.3vw,11px);color:#7fa2bf;letter-spacing:.8px;text-align:center;max-width:820px;line-height:1.8;margin-bottom:clamp(24px,4vw,36px);overflow-wrap:break-word;word-break:break-word}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(14px,2vw,22px);max-width:960px;width:min(100%,960px)}
+.card{position:relative;background:linear-gradient(180deg,rgba(6,12,24,.96),rgba(4,10,20,.92));border:1px solid #0b1a30;border-radius:18px;padding:clamp(22px,3vw,30px);text-decoration:none;color:inherit;transition:transform .18s,box-shadow .18s,border-color .18s,background .18s;display:block;box-shadow:0 18px 42px rgba(0,0,0,.18);min-height:100%;outline:none}
+.card::before{content:"";position:absolute;inset:0;border-radius:18px;padding:1px;background:linear-gradient(135deg,rgba(0,229,255,.24),transparent 40%,rgba(0,255,136,.12));
+  /* WebKit mask for Safari/Chrome compatibility */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  /* Unprefixed mask for Firefox and modern browsers */
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;opacity:.75}
+.card:hover,.card:focus-visible{border-color:#00e5ff;background:#070f1e;transform:translateY(-4px);box-shadow:0 24px 50px rgba(0,0,0,.24)}
+.card-icon{font-size:clamp(28px,4vw,34px);margin-bottom:12px}
+.card-title{font-size:clamp(13px,1.6vw,15px);color:#00e5ff;font-weight:700;letter-spacing:2px;margin-bottom:8px}
+.card-desc{font-size:clamp(9px,1.2vw,10px);color:#8aa6c0;line-height:1.9;min-height:76px}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tag{padding:4px 9px;border-radius:999px;font-size:7px;border:1px solid;letter-spacing:1px;background:rgba(4,10,20,.4)}
+.t-blue{border-color:#00ddff30;color:#00ddff}
+.t-green{border-color:#00ff8830;color:#00ff88}
+.t-yellow{border-color:#ffc70030;color:#ffc700}
+.t-red{border-color:#ff445530;color:#ff4455}
+.footer{margin-top:clamp(28px,5vw,48px);font-size:clamp(8px,1.1vw,9px);color:#6f8cab;letter-spacing:2px;text-align:center;max-width:820px;line-height:1.8}
+.sep{color:#0b1a30;margin:0 8px}
+@media(max-width:720px){body{justify-content:flex-start;padding-top:28px}.hero-note{max-width:640px}.footer{margin-top:30px;letter-spacing:1.2px}.sep{margin:0 4px}}
+
+/* Shared button + focus styles for improved hit targets and keyboard visibility */
+.btn{display:inline-flex;align-items:center;gap:.5ch;padding:.45rem .7rem;border-radius:8px;border:0;background:transparent;color:inherit;font-family:inherit;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+.btn:focus{outline:none}
+.btn:focus-visible{box-shadow:0 0 0 4px color-mix(in srgb,#60a5fa 22%, transparent);transform:translateY(-1px)}
+.small-btn{padding:.25rem .45rem;border-radius:6px;font-size:.95rem}
+
+</style>
+</head>
+<body>
+<a href="#" class="skip-link">Skip to content</a>
+<div class="logo">◉ NET<span>LAB</span></div>
+<div class="tagline">INTERACTIVE NETWORK LEARNING PLATFORM</div>
+<div class="hero-note">A browser-native lab for learning networking by doing: build topologies, inspect packet flows, explore protocols, and switch into the pro analyzer for deeper packet-level study.</div>
+
+<div class="grid">
+  <a href="netlab-simulator.html" class="card">
+    <div class="card-icon">🖧</div>
+    <div class="card-title">TOPOLOGY SIMULATOR</div>
+    <div class="card-desc">
+      Build and visualize real network topologies with animated packet flows.
+      Drag-and-drop nodes, connect devices, and watch protocols in motion.
+      8 preset scenarios from home networks to enterprise spine-leaf datacenters.
+    </div>
+    <div class="card-tags">
+      <span class="tag t-blue">Packet Animation</span>
+      <span class="tag t-green">14 Device Types</span>
+      <span class="tag t-blue">8 Scenarios</span>
+      <span class="tag t-yellow">OSI Reference</span>
+      <span class="tag t-green">TCP Walkthrough</span>
+      <span class="tag t-blue">Subnet Calc</span>
+      <span class="tag t-yellow">VLAN Config</span>
+      <span class="tag t-green">Routing Tables</span>
+    </div>
+  </a>
+
+  <a href="netlab-pro.html" class="card">
+    <div class="card-icon">📡</div>
+    <div class="card-title">PRO ANALYSIS MODULE</div>
+    <div class="card-desc">
+      Wireshark-style packet capture with protocol dissection and hex dump.
+      Attack simulation lab, protocol state machine walkthroughs,
+      live bandwidth graphs, NAT table viewer, and CCNA quiz mode.
+    </div>
+    <div class="card-tags">
+      <span class="tag t-red">Attack Lab</span>
+      <span class="tag t-blue">Packet Capture</span>
+      <span class="tag t-blue">Hex Dump</span>
+      <span class="tag t-green">Protocol Steps</span>
+      <span class="tag t-yellow">NAT/ARP Tables</span>
+      <span class="tag t-green">Live Graphs</span>
+      <span class="tag t-yellow">CCNA Quiz</span>
+      <span class="tag t-red">DDoS Simulation</span>
+    </div>
+  </a>
+</div>
+
+<div class="footer">
+  NETLAB v1.0.0 <span class="sep">│</span>
+  TOPOLOGY SIMULATOR <span class="sep">+</span> PRO ANALYSIS MODULE <span class="sep">│</span>
+  OPEN IN ANY MODERN BROWSER — NO INSTALL REQUIRED
+</div>
+</body>
+</html>

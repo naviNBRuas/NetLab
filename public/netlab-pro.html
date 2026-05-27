@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NetLab Pro — Advanced Network Analysis</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NetLab Pro — advanced packet capture, protocol dissector, attack lab, NAT/ARP viewer, live graphs, and quizzes for network learning.">
+<style>
+/* (styles omitted for brevity) */
+html,body{background:linear-gradient(180deg,#06111f 0%,#040a14 100%);color:#bfeaff;font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;font-size:11px;height:100vh;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+</style>
+</head>
+<body>
+
+<div id="topbar" role="navigation" aria-label="Pro module top bar">
+  <span class="logo">◉ NETLAB</span>
+  <span class="ver">v1.0.0</span>
+  <button id="toggle-sidebar" class="btn-sm" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle sidebar">☰</button>
+  <span class="badge">PRO MODULE</span>
+  <span class="sep">│</span>
+  <div id="pro-tabs" role="tablist" aria-label="Pro module tabs">
+    <button class="tab on" data-t="capture" tabindex="0" role="tab" aria-label="Packet Capture">📡 Packet Capture</button>
+    <button class="tab" data-t="attacks" tabindex="0" role="tab" aria-label="Attack Lab">⚔️ Attack Lab</button>
+    <button class="tab" data-t="protocols" tabindex="0" role="tab" aria-label="Protocol Walkthroughs">🔄 Protocols</button>
+    <button class="tab" data-t="nat" tabindex="0" role="tab" aria-label="NAT and ARP">🗺️ NAT / ARP</button>
+    <button class="tab" data-t="graphs" tabindex="0" role="tab" aria-label="Live Graphs">📊 Live Graphs</button>
+    <button class="tab" data-t="quiz" tabindex="0" role="tab" aria-label="Quiz">🎓 Quiz</button>
+  </div>
+  <div class="ml flex">
+    <span class="cap-status" id="cap-status">● CAPTURING</span>
+  </div>
+</div>
+
+<div id="body">
+  <div id="sidebar">
+    <div id="sidebar-tabs" role="tablist" aria-label="Sidebar tabs">
+      <button class="stab on" data-st="filters" tabindex="0" role="tab" aria-label="Filters">FILTERS</button>
+      <button class="stab" data-st="legend" tabindex="0" role="tab" aria-label="Legend">LEGEND</button>
+      <button class="stab" data-st="ref" tabindex="0" role="tab" aria-label="Reference">REF</button>
+    </div>
+    <div id="sidebar-content"></div>
+  </div>
+
+  <div id="main" role="main" aria-label="Pro analysis main">
+    <div id="main-tabs" role="tablist" aria-label="Main tabs">
+      <button class="mtab on" data-mt="list" tabindex="0" role="tab" aria-label="Packet List">PACKET LIST</button>
+      <button class="mtab" data-mt="detail" tabindex="0" role="tab" aria-label="Dissect packet">DISSECT</button>
+      <button class="mtab" data-mt="hex" tabindex="0" role="tab" aria-label="Hex dump">HEX DUMP</button>
+      <button class="mtab" data-mt="stream" tabindex="0" role="tab" aria-label="Stream">STREAM</button>
+    </div>
+    <div id="main-content"></div>
+  </div>
+</div>
+
+<!-- Bundled script (built to dist/) — falls back to source during development -->
+<script src="../dist/pro.bundle.js"></script>
+<script>if(typeof window.capPkts==='undefined'){var s=document.createElement('script');s.src='../src/js/pro.js';document.body.appendChild(s);}</script>
+<script>
+// Sidebar toggle + keyboard shortcut (S) for Pro page
+(function(){
+  const t=document.getElementById('toggle-sidebar');
+  if(!t) return;
+  t.addEventListener('click',()=>{const open=document.body.classList.toggle('sidebar-open');t.setAttribute('aria-expanded',String(open));});
+  document.addEventListener('keydown',e=>{if(e.target && /input|textarea|select/i.test(e.target.tagName))return; if(e.key==='s'||e.key==='S'){e.preventDefault();t.click();}});
+})();
+</script>
+</body>
+</html>
