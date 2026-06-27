@@ -7,6 +7,12 @@ module.exports = {
   timeout: 30_000,
   expect: { timeout: 5000 },
   fullyParallel: true,
+  webServer: {
+    command: 'npx serve dist -p 8080 --no-clipboard',
+    url: 'http://127.0.0.1:8080',
+    reuseExistingServer: !process.env.CI,
+    timeout: 15_000,
+  },
   use: {
     headless: true,
     viewport: { width: 1280, height: 800 },
