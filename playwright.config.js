@@ -4,6 +4,7 @@ const { devices } = require('@playwright/test');
 /** @type {import('@playwright/test').PlaywrightTestConfig} */
 module.exports = {
   testDir: './tests',
+  testIgnore: '**/unit/**',
   timeout: 30_000,
   expect: { timeout: 5000 },
   fullyParallel: true,

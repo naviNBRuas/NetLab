@@ -11,10 +11,38 @@ netlab/
 ├── netlab-simulator.html   ← Topology Simulator
 ├── netlab-pro.html         ← Pro Analysis Module
 ├── js/
-│   ├── simulator.js        ← Simulator engine
-│   └── pro.js              ← Pro module engine
+│   ├── index.js            ← Application entry point (DOM wiring, rendering, main loop)
+│   ├── core/
+│   │   ├── constants.js    ← All constants (devices, protocols, presets, scenarios)
+│   │   ├── state.js        ← Global mutable state (N, LAB_STATE)
+│   │   ├── utils.js        ← Pure utility functions (clamp, calcSubnet, sidebar resize)
+│   │   ├── network.js      ← Network logic (link inference, BFS, node/edge queries)
+│   │   └── sim-core.js     ← Simulation engine (traffic, spawning, firewall verdict)
+│   ├── simulator.js        ← Built bundle (Rollup)
+│   └── pro.js              ← Pro module built bundle
+├── scripts/
+│   ├── build.js            ← Rollup build script (no external config)
+│   └── run-sanity-tests.js ← Sanity test runner
+├── tests/
+│   ├── setup.js            ← Test env setup
+│   ├── helpers.js          ← Test helpers (DOM stubs, snapshot helper)
+│   └── unit/
+│       ├── utils.test.js   ← Unit tests for utils
+│       ├── network.test.js ← Unit tests for network logic
+│       ├── sim-core.test.js← Unit tests for simulation engine
+│       └── integration.test.js ← Integration tests
+├── vitest.config.js        ← Test configuration
+├── .github/
+│   └── workflows/
+│       ├── ci.yml          ← CI (lint, build, test, dep audit, coverage upload)
+│       ├── pages-deploy.yml← GitHub Pages deployment
+│       └── codeql.yml      ← CodeQL security analysis
+├── LICENSE
+├── CHANGELOG.md
 └── README.md
 ```
+
+Build output goes to `dist/` (gitignored) — `npm run build` produces `dist/netlab.js` and `dist/netlab.min.js`.
 
 ## Module 1 — Topology Simulator (`netlab-simulator.html`)
 
