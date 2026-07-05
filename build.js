@@ -39,7 +39,18 @@ async function build(){
     platform: 'browser',
     target: ['es2019']
   });
-  console.log('Build complete — bundles written to dist/ and js/simulator.js');
+  // Copy HTML files into dist/ and fix script paths for production serving
+  const htmlFiles = ['index.html', 'netlab-simulator.html', 'netlab-pro.html'];
+  for (const f of htmlFiles) {
+    let html = fs.readFileSync(f, 'utf8');
+    // Rewrite script src paths: dist/X.js → X.js (files are colocated in dist/)
+    html = html.replace(/src="dist\//g, 'src="');
+    // Remove development-only fallback script tags (js/simulator.js, js/pro.js)
+    html = html.replace(/<script>if\(typeof window\.[^<]+<\/script>\s*/g, '');
+    fs.writeFileSync('dist/' + f, html);
+  }
+
+  console.log('Build complete — bundles + static assets written to dist/');
 }
 
 build().catch(err=>{console.error(err);process.exit(1);});
