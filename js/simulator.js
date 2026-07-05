@@ -251,16 +251,10 @@ function currentProfile(){return SIM_PROFILES[LAB_STATE.profile]||SIM_PROFILES.n
 function firewallNode(n){return n&&(n.type==="firewall"||n.type==="ngfw");}
 function hostNodes(){return nodes.filter(n=>["pc","laptop","server","web","lb","dns"].includes(n.type));}
 function sourcePool(excludeId){return hostNodes().filter(n=>n.id!==excludeId);}
-function bestNode(types, fallback){return nodes.find(n=>types.includes(n.type))||nodes.find(n=>n.type===fallback)||nodes[0];}
 function trafficLabel(flow){return flow.label||LAB_PRESETS[flow.kind]?.label||flow.kind||"Traffic";}
 function addFlow(flow){
   LAB_STATE.flows.push({...flow,id:flow.id||`flow-${Date.now()}-${Math.floor(Math.random()*1000)}`,tokens:0,active:true,started:performance.now()});
   return LAB_STATE.flows[LAB_STATE.flows.length-1];
-}
-function clearFlows(kind){
-  LAB_STATE.flows=kind?LAB_STATE.flows.filter(f=>f.kind!==kind):[];
-  addLog(kind?`🛑 Stopped ${kind} traffic`:`🛑 Stopped lab traffic`,"warn");
-  renderRight();
 }
 function applyProfile(key,announce=true){
   if(!SIM_PROFILES[key])return;
