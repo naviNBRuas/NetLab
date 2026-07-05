@@ -9,11 +9,15 @@
     "lint": "eslint js --ext .js",
     "build": "node build.js",
     "test": "node ./scripts/run-sanity-tests.js",
+    "test:unit": "vitest run",
+    "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "npx playwright test"
   },
   "devDependencies": {
-    "eslint": "^8.0.0",
+    "@playwright/test": "^1.40.0",
+    "@vitest/coverage-v8": "^4.1.9",
     "esbuild": "^0.18.0",
-    "@playwright/test": "^1.40.0"
+    "eslint": "^8.0.0",
+    "vitest": "^4.1.9"
   }
 }

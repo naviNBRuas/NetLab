@@ -1,2 +1,6 @@
 node_modules/
 dist/
+coverage/
+test-results/
+*.map
+js/simulator.js
