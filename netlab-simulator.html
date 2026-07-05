@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>NetLab — Network Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--left-w:148px;--right-w:286px}
+html,body{background:
+  radial-gradient(900px 600px at 50% -10%,rgba(0,229,255,.10),transparent 45%),
+  radial-gradient(700px 500px at 10% 20%,rgba(56,189,248,.07),transparent 40%),
+  linear-gradient(180deg,#07111f 0%,#040a14 100%);
+  color:#bfeaff;font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;overflow:hidden;height:100vh;display:flex;flex-direction:column;font-size:11px}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:10px;background:#050b17;color:#a8bdd4;border:1px solid #0e1e35;padding:3px 6px;border-radius:2px;outline:none}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-thumb{background:#142038;border-radius:2px}
+
+/* ── topbar ── */
+#topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(7,12,24,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid rgba(14,30,56,.9);box-shadow:0 8px 24px rgba(0,0,0,.18);flex-shrink:0;flex-wrap:wrap;min-height:40px}
+.logo{color:#00ddff;font-weight:700;font-size:13px;letter-spacing:2px;margin-right:4px}
+.ver{font-size:8px;color:#9bd0ff;border:1px solid #0e2040;padding:1px 6px;border-radius:999px;margin-right:6px;background:rgba(1,10,20,.65)}
+.sc-btn{padding:4px 10px;border:1px solid #0e1e35;background:rgba(4,10,20,.45);color:#9bd0ff;border-radius:999px;font-size:9px;transition:all .16s;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.sc-btn.active{border-color:#00ddff;background:#001828;color:#00ddff;box-shadow:0 0 0 1px rgba(0,221,255,.08),0 8px 18px rgba(0,221,255,.08)}
+.sc-btn:hover:not(.active){border-color:#1a3050;color:#bfeaff;transform:translateY(-1px)}
+.sep{color:#0e1e38;margin:0 3px;font-size:10px}
+.ml-a{margin-left:auto}
+.spd-btn{padding:3px 7px;border:1px solid #142038;background:rgba(4,10,20,.45);color:#bfeaff;border-radius:999px;font-size:9px;transition:all .16s}
+.spd-btn.active{border-color:#00ff88;background:#001408;color:#00ff88;box-shadow:0 0 0 1px rgba(0,255,136,.08),0 8px 18px rgba(0,255,136,.06)}
+.run-btn{padding:4px 12px;border-radius:999px;border:1px solid;font-weight:700;font-size:10px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.run-run{border-color:#ffc700;background:#150f00;color:#ffc700}
+.run-pause{border-color:#00ff88;background:#001408;color:#00ff88}
+.flex{display:flex;align-items:center;gap:4px}
+
+/* ── layout ── */
+#main{display:flex;flex:1;overflow:hidden;min-height:0;align-items:stretch;min-width:0}
+
+/* ── left panel ── */
+#left{width:var(--left-w);background:rgba(6,12,24,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-right:1px solid #0b1830;padding:9px 7px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:1px;box-shadow:inset -1px 0 0 rgba(255,255,255,.02);min-width:72px;max-width:40vw}
+.slbl{font-size:7px;color:#00ddff;letter-spacing:3px;margin:8px 0 5px;display:block;text-transform:uppercase}
+.db{display:flex;align-items:center;gap:6px;width:100%;padding:5px 7px;border:1px solid #0b1830;background:rgba(4,10,20,.35);color:#bfeaff;font-size:9px;text-align:left;border-radius:6px;transition:all .16s;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.dc-pc{--dc:#3b82f6}.dc-laptop{--dc:#6366f1}.dc-server{--dc:#10b981}.dc-web{--dc:#06b6d4}.dc-router{--dc:#f59e0b}.dc-l3sw{--dc:#f97316}.dc-switch{--dc:#8b5cf6}.dc-hub{--dc:#a78bfa}.dc-firewall{--dc:#ef4444}.dc-ngfw{--dc:#dc2626}.dc-ap{--dc:#06b6d4}.dc-cloud{--dc:#64748b}.dc-dns{--dc:#34d399}.dc-lb{--dc:#f472b6}
+.db.active{color:var(--dc);border-color:var(--dc);background:color-mix(in srgb,var(--dc) 12%,#060c18);box-shadow:0 0 0 1px color-mix(in srgb,var(--dc) 18%,transparent),0 10px 20px rgba(0,0,0,.12)}
+.db:hover:not(.active){border-color:#142038;color:#bfeaff;transform:translateX(1px)}
+.tb{display:flex;align-items:center;gap:6px;width:100%;padding:5px 7px;border:1px solid #0b1830;background:rgba(4,10,20,.35);color:#bfeaff;font-size:9px;text-align:left;border-radius:6px;transition:all .16s;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.tb.active{border-color:#00ddff;background:#001020;color:#00ddff;box-shadow:0 0 0 1px rgba(0,221,255,.08),0 10px 20px rgba(0,0,0,.12)}
+.tb.warn{border-color:#ff4455;color:#ff4455}
+.spd-lbl{font-size:8px;color:#bfeaff}
+.hdivider{border-top:1px solid #0b1830;margin:7px 0}
+
+/* ── canvas ── */
+#cw{flex:1;position:relative;overflow:hidden;background:linear-gradient(180deg,rgba(4,10,20,.12),rgba(4,10,20,.32));min-width:0}
+#badges{position:absolute;top:7px;left:8px;z-index:10;display:flex;gap:5px;pointer-events:none}
+.badge{padding:3px 8px;background:rgba(5,11,21,.92);border:1px solid;border-radius:999px;font-size:8px;pointer-events:none;box-shadow:0 8px 16px rgba(0,0,0,.14)}
+.badge-add{border-color:#00ff88;color:#00ff88}
+.badge-conn{border-color:#00ddff;color:#00ddff}
+#hud{position:absolute;top:7px;right:8px;z-index:10;display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:min(52vw,420px)}
+.hud-chip{padding:2px 6px;background:#060c18;border:1px solid #0b1830;border-radius:2px;font-size:8px;color:#bfeaff}
+.hud-bw{color:#00ff88}.hud-loss{color:#ffc700}.hud-lat{color:#00ddff}.hud-lab{color:#bfeaff}
+#ns{display:block;width:100%;height:100%;cursor:default}
+#ns.m-add{cursor:crosshair}
+#ns.m-conn{cursor:cell}
+
+/* ── right panel ── */
+#right{width:var(--right-w);background:rgba(6,12,24,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-left:1px solid #0b1830;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:inset 1px 0 0 rgba(255,255,255,.02);min-width:92px;max-width:45vw}
+button.resize-handle{width:10px;flex:0 0 10px;cursor:col-resize;position:relative;background:linear-gradient(180deg,rgba(14,30,56,.08),rgba(14,30,56,.16),rgba(14,30,56,.08));z-index:5;touch-action:none;border:none;outline:none;padding:0;-webkit-appearance:none;appearance:none}
+button.resize-handle::after{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:2px;height:34px;border-radius:999px;background:rgba(191,234,255,.18);box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+button.resize-handle:hover::after,button.resize-handle:focus-visible::after{background:rgba(0,229,255,.58)}
+#rtabs{display:flex;border-bottom:1px solid #0b1830;flex-shrink:0;overflow-x:auto;padding:6px 6px 0;gap:4px}
+.rt{flex:0 0 auto;padding:5px 10px;border:1px solid transparent;background:rgba(4,10,20,.35);color:#bfeaff;font-size:8px;letter-spacing:1px;cursor:pointer;font-family:inherit;white-space:nowrap;border-radius:999px;transition:all .16s}
+.rt.active{border-color:#00ddff;color:#00ddff;background:#001020;box-shadow:0 0 0 1px rgba(0,221,255,.08)}
+#rc{flex:1;overflow-y:auto;padding:10px}
+
+/* ── right panel components ── */
+.field{font-size:7px;color:#00ddff;letter-spacing:2px;margin-bottom:5px;display:block}
+.icard{background:linear-gradient(180deg,rgba(4,10,20,.96),rgba(4,10,20,.84));border:1px solid #0b1830;border-radius:10px;padding:10px;margin-bottom:8px;box-shadow:0 10px 22px rgba(0,0,0,.14)}
+.iico{text-align:center;font-size:24px;margin-bottom:4px}
+.iname{font-size:10px;color:#b8cce0;text-align:center;margin-bottom:2px;font-weight:700}
+.isub{font-size:8px;color:#bfeaff;text-align:center;margin-bottom:1px}
+.pbrow{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px}
+.pb{padding:3px 7px;border-radius:999px;border:1px solid #0b1830;background:rgba(4,10,20,.34);color:#bfeaff;font-size:8px;cursor:pointer;font-family:inherit;transition:all .14s}
+.pb.active{border-color:var(--pc);background:color-mix(in srgb,var(--pc) 12%,#040a14);color:var(--pc);box-shadow:0 0 0 1px color-mix(in srgb,var(--pc) 18%,transparent)}
+.sbtn{width:100%;padding:6px 10px;border-radius:8px;border:1px solid #00ddff;background:#001020;color:#00ddff;font-size:9px;font-family:inherit;cursor:pointer;margin-bottom:5px;transition:all .16s;box-shadow:0 8px 16px rgba(0,0,0,.10)}
+.sbtn:hover{background:#001830;transform:translateY(-1px)}
+.sbtn2{width:100%;padding:6px 10px;border-radius:8px;border:1px solid #00ff88;background:#001408;color:#00ff88;font-size:9px;font-family:inherit;cursor:pointer;margin-bottom:5px;transition:all .16s;box-shadow:0 8px 16px rgba(0,0,0,.10)}
+.sbtn2:hover{transform:translateY(-1px)}
+.linkbox{background:#040a14;border:1px solid #0b1830;border-radius:10px;padding:8px;margin-bottom:7px;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.linksel{width:100%;padding:5px 7px;border:1px solid #0b1830;background:#050b17;color:#bfeaff;border-radius:8px;font-size:8px;font-family:inherit;outline:none}
+.linkhint{font-size:7px;color:#9ab5cc;line-height:1.5;margin-top:3px}
+.lbox{background:#040a14;border:1px solid #142038;border-radius:10px;padding:9px;margin-top:8px;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.ltitle{font-size:7px;color:#ffc700;margin-bottom:4px;letter-spacing:1px}
+.ltext{font-size:8px;color:#bfeaff;line-height:1.9}
+
+/* ── OSI ── */
+.osi-r{margin-bottom:3px;border-radius:2px;padding:6px 8px;border:1px solid var(--lc);background:rgba(4,10,20,.86);cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+.osi-r:hover{background:rgba(4,10,20,.96)}
+.osi-h{display:flex;justify-content:space-between;align-items:center}
+.osi-n{font-size:9px;font-weight:700;color:var(--lc)}
+.osi-d{font-size:7px;color:#bfeaff;margin-top:1px}
+.osi-p{font-size:7px;color:#bfeaff;margin-top:2px}
+.osi-detail{margin-top:5px;padding-top:5px;border-top:1px solid var(--lc);display:none;opacity:.9}
+.osi-detail.open{display:block}
+
+/* ── Protocols ── */
+.prow{display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:4px 6px;background:#040a14;border-radius:2px;border:1px solid #0b1830}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.pkey{font-size:9px}.plbl{font-size:7px;color:#bfeaff}
+.pcnt{margin-left:auto;font-size:9px;font-weight:700;min-width:14px;text-align:right}
+.sbox{background:#040a14;border:1px solid #0b1830;border-radius:2px;padding:7px;margin-top:7px}
+.sr{display:flex;justify-content:space-between;font-size:8px;margin-bottom:2px}
+.sk{color:#1a3a5a}.sv{color:#00ddff}
+
+/* ── Log ── */
+.log-i{font-size:8px;line-height:1.6;padding:2px 0 2px 5px;border-left:2px solid}
+.lt{color:#0e1e38}
+.lhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.lclr{padding:2px 5px;border:1px solid #0b1830;background:transparent;color:#bfeaff;border-radius:2px;font-size:7px;font-family:inherit;cursor:pointer}
+
+/* ── TCP ── */
+.tcp-step{padding:6px 8px;background:#040a14;border:1px solid #0b1830;border-radius:2px;margin-bottom:3px;cursor:pointer;transition:all .1s}
+.tcp-step.active{border-color:#00ddff;background:#001020}
+.tcp-step-hdr{display:flex;align-items:center;gap:6px}
+.tcp-flag{font-size:9px;font-weight:700;color:#00ddff}
+.tcp-desc{font-size:7px;color:#bfeaff;margin-top:2px}
+.tcp-detail{font-size:8px;color:#bfeaff;margin-top:4px;line-height:1.8;display:none;border-top:1px solid #0b1830;padding-top:4px}
+.tcp-detail.open{display:block}
+
+/* ── Tools ── */
+.tool-section{background:#040a14;border:1px solid #0b1830;border-radius:2px;padding:8px;margin-bottom:8px}
+.tool-row{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap}
+.tool-lbl{font-size:8px;color:#bfeaff;min-width:50px}
+.tool-input{flex:1;font-size:9px;padding:3px 5px}
+.tool-result{font-size:9px;color:#00ff88;margin-top:5px;line-height:1.7;border-top:1px solid #0b1830;padding-top:5px}
+.tool-err{font-size:9px;color:#ff4455;margin-top:5px}
+.hop-row{display:flex;align-items:center;gap:5px;font-size:8px;margin-bottom:3px;padding:3px 5px;background:#050c18;border-radius:2px}
+.hop-n{color:#ffc700;min-width:16px}.hop-ip{color:#00ddff;flex:1}.hop-ms{color:#00ff88;text-align:right}
+
+/* ── VLAN ── */
+.vlan-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:4px 6px;background:#040a14;border-radius:2px;border-left:3px solid var(--vc)}
+.vlan-id{font-size:10px;font-weight:700;color:var(--vc)}
+.vlan-name{font-size:8px;color:#bfeaff}
+.vlan-ports{font-size:7px;color:#bfeaff;margin-left:auto}
+
+/* ── Routing ── */
+.rt-table{width:100%;border-collapse:collapse;font-size:8px;margin-bottom:5px}
+.rt-table th{color:#00ddff;font-size:7px;letter-spacing:1px;padding:3px 4px;border-bottom:1px solid #0b1830;text-align:left}
+.rt-table td{padding:3px 4px;border-bottom:1px solid #050c18;color:#bfeaff}
+.rt-table td:first-child{color:#bfeaff}
+.rt-table tr:hover td{background:#050c18}
+
+/* ── Subnet ── */
+.subnet-row{display:flex;justify-content:space-between;font-size:8px;margin-bottom:2px}
+.sub-k{color:#bfeaff}.sub-v{color:#00ff88;font-family:monospace}
+
+/* ── HDR Vis ── */
+.hdr-vis{background:#040a14;border:1px solid #0b1830;border-radius:10px;padding:9px;margin-bottom:8px;box-shadow:0 10px 22px rgba(0,0,0,.12)}
+.hdr-title{font-size:8px;color:#00ddff;margin-bottom:6px;letter-spacing:1px}
+.hdr-layer{margin-bottom:4px}
+.hdr-name{font-size:7px;color:var(--lc);margin-bottom:2px}
+.hdr-fields{display:flex;gap:2px;flex-wrap:wrap}
+.hdr-f{padding:2px 5px;background:rgba(255,255,255,.04);border:1px solid var(--lc);border-radius:1px;font-size:7px;color:var(--lc)}
+
+@media (max-width: 1080px){
+  html,body{font-size:10px}
+  #left{width:clamp(120px,18vw,170px)}
+  #right{width:clamp(220px,28vw,260px)}
+  #hud{max-width:min(56vw,460px)}
+}
+
+@media (max-width: 860px){
+  html,body{height:auto;min-height:100vh;overflow:auto}
+  #main{flex-direction:column;overflow:visible}
+  #left,#right{width:100%;max-width:none;min-width:0;border-right:none;border-left:none;max-height:220px}
+  #left{border-bottom:1px solid #0b1830}
+  #right{border-top:1px solid #0b1830}
+  #cw{min-height:58vh}
+  button.resize-handle{display:none}
+  #hud{max-width:calc(100vw - 20px)}
+}
+
+@media (max-width: 640px){
+  #topbar{gap:4px;padding:6px 8px}
+  .logo{font-size:12px;letter-spacing:1px}
+  .ver{margin-right:2px}
+  .sc-btn,.spd-btn,.run-btn{font-size:8px;padding-inline:8px}
+  #left,#right{max-height:210px}
+  #cw{min-height:62vh}
+  #rc{padding:8px}
+  .ltitle,.field{letter-spacing:1px}
+  .linkhint,.ltext,.tool-lbl{font-size:7px}
+}
+
+/* Button and focus polish */
+.btn{--pad:0.35rem .6rem;display:inline-flex;align-items:center;gap:.4ch;padding:var(--pad);border-radius:8px;border:0;background:transparent;color:inherit;font-family:inherit;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+.btn:focus{outline:none}
+.btn:focus-visible{box-shadow:0 0 0 4px color-mix(in srgb,#60a5fa 22%, transparent);transform:translateY(-1px)}
+.small-btn{padding:.25rem .45rem;border-radius:6px;font-size:.95rem}
+
+/* Packet bloom animation: subtle pulse on packet creation */
+@keyframes pktPulse{0%{transform:scale(0.9);opacity:0.6}50%{transform:scale(1.06);opacity:1}100%{transform:scale(1);opacity:0.95}}
+
+g.pkt circle{transform-origin:center center;animation:pktPulse 760ms cubic-bezier(.2,.9,.3,1) both}
+
+/* Drawer overlay styles for small screens */
+@media (max-width: 860px){
+  body.drawer-left-open #left{position:fixed;left:8px;top:56px;z-index:60;border-radius:10px;box-shadow:0 24px 46px rgba(0,0,0,.55);max-height:72vh;overflow:auto;padding:10px}
+  body.drawer-right-open #right{position:fixed;right:8px;top:56px;z-index:60;border-radius:10px;box-shadow:0 24px 46px rgba(0,0,0,.55);max-height:72vh;overflow:auto;padding:10px}
+  body.drawer-left-open #cw, body.drawer-right-open #cw{pointer-events:none;filter:blur(.2px) brightness(.92)}
+}
+
+</style>
+</style>
+</head>
+<body>
+
+<div id="topbar" role="navigation" aria-label="Simulator top bar">
+  <span class="logo">◉ NETLAB</span><span class="ver">v1.0.0</span>
+  <span class="sep">│</span>
+  <div class="flex" id="sc-tabs"></div>
+  <span class="sep ml-a">│</span>
+  <div class="flex">
+    <span class="spd-lbl">SPD</span>
+    <button class="spd-btn" data-s="0.5" tabindex="0" role="button" aria-label="Speed half">½×</button>
+    <button class="spd-btn active" data-s="1" tabindex="0" role="button" aria-label="Speed normal">1×</button>
+    <button class="spd-btn" data-s="2" tabindex="0" role="button" aria-label="Speed double">2×</button>
+    <button class="spd-btn" data-s="3" tabindex="0" role="button" aria-label="Speed triple">3×</button>
+  </div>
+  <!-- Drawer toggles for small screens -->
+  <button id="toggle-left" class="small-btn btn" aria-controls="left" aria-expanded="false" aria-label="Toggle left panel">☰</button>
+  <button id="toggle-right" class="small-btn btn" aria-controls="right" aria-expanded="false" aria-label="Toggle right panel">▤</button>
+  <button id="rbtn" class="run-btn run-run" tabindex="0" role="button" aria-label="Pause or run simulation">⏸ PAUSE</button>
+</div>
+
+<div id="main" role="main" aria-label="Topology simulator main">
+  <div id="left">
+    <span class="slbl">DEVICES</span>
+    <button class="db dc-pc" data-t="pc" tabindex="0" role="button" aria-label="PC host">🖥️ PC / Host</button>
+    <button class="db dc-laptop" data-t="laptop" tabindex="0" role="button" aria-label="Laptop">💻 Laptop</button>
+    <button class="db dc-server" data-t="server" tabindex="0" role="button" aria-label="Server">🗄️ Server</button>
+    <button class="db dc-web" data-t="web" tabindex="0" role="button" aria-label="Web server">🌐 Web Server</button>
+    <button class="db dc-router" data-t="router" tabindex="0" role="button" aria-label="Router">📡 Router</button>
+    <button class="db dc-l3sw" data-t="l3sw" tabindex="0" role="button" aria-label="Layer 3 switch">🔀 L3 Switch</button>
+    <button class="db dc-switch" data-t="switch" tabindex="0" role="button" aria-label="Layer 2 switch">⬡ Switch L2</button>
+    <button class="db dc-hub" data-t="hub" tabindex="0" role="button" aria-label="Hub">⬡ Hub L1</button>
+    <button class="db dc-firewall" data-t="firewall" tabindex="0" role="button" aria-label="Firewall">🛡️ Firewall</button>
+    <button class="db dc-ngfw" data-t="ngfw" tabindex="0" role="button" aria-label="Next-generation firewall">🛡️ NGFW</button>
+    <button class="db dc-ap" data-t="ap" tabindex="0" role="button" aria-label="WiFi access point">📶 WiFi AP</button>
+    <button class="db dc-cloud" data-t="cloud" tabindex="0" role="button" aria-label="Internet cloud">☁️ Internet</button>
+    <button class="db dc-dns" data-t="dns" tabindex="0" role="button" aria-label="DNS server">🔍 DNS</button>
+    <button class="db dc-lb" data-t="lb" tabindex="0" role="button" aria-label="Load balancer">⚖️ Load Balancer</button>
+    <div class="hdivider"></div>
+    <span class="slbl">TOOLS</span>
+    <button class="tb" id="connbtn" tabindex="0" role="button" aria-label="Connect nodes">🔗 Connect Nodes</button>
+    <div class="linkbox">
+      <div class="ltitle">NEW LINK TYPE</div>
+      <select class="linksel" id="linktype" aria-label="Default link type">
+        <option value="auto">Auto (smart)</option>
+        <option value="ethernet">Ethernet</option>
+        <option value="fiber">Fiber / 10G+</option>
+        <option value="wifi24">2.4GHz Wi‑Fi</option>
+        <option value="wifi5">5GHz Wi‑Fi</option>
+        <option value="dns">DNS / service</option>
+        <option value="wan">WAN / Internet</option>
+        <option value="vpn">VPN / IPsec</option>
+        <option value="trunk">Trunk / LACP</option>
+        <option value="direct">Direct</option>
+      </select>
+      <div class="linkhint" id="linkhint">Choose a preset for new links. Auto will infer a sensible link from the two endpoints.</div>
+    </div>
+    <div class="linkbox">
+      <div class="ltitle">WORKFLOW</div>
+      <div class="linkhint">1. Add devices<br>2. Pick a link type<br>3. Connect two nodes<br>4. Select the link to tune it</div>
+    </div>
+    <button class="tb" id="delbtn" tabindex="0" role="button" aria-label="Delete selected">🗑 Delete Selected</button>
+    <button class="tb" id="clrpkt" tabindex="0" role="button" aria-label="Clear packets">🧹 Clear Packets</button>
+    <button class="tb warn" id="clrall" tabindex="0" role="button" aria-label="Clear canvas">✕ Clear Canvas</button>
+  </div>
+
+  <button id="l-resize" type="button" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize left sidebar" aria-valuemin="110" aria-valuemax="260" aria-valuenow="148" tabindex="0"></button>
+
+  <div id="cw">
+    <div id="badges">
+      <div id="b-add" class="badge badge-add" hidden></div>
+      <div id="b-conn" class="badge badge-conn" hidden></div>
+    </div>
+    <div id="hud">
+      <div class="hud-chip" id="h-pkts">📦 0</div>
+      <div class="hud-chip" id="h-topo">🖧 0N 0L</div>
+      <div class="hud-chip hud-bw" id="h-bw">↑ 0 pps</div>
+      <div class="hud-chip hud-loss" id="h-loss">⚠ 0% loss</div>
+      <div class="hud-chip hud-lat" id="h-lat">⏱ 0 ms</div>
+      <div class="hud-chip hud-lab" id="h-lab">🧪 0 flows</div>
+    </div>
+    <svg id="ns" viewBox="0 0 820 580" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+          <path d="M36 0L0 0 0 36" fill="none" stroke="#090f1e" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#grid)"/>
+      <g id="el"></g>
+      <g id="pl"></g>
+      <g id="nl"></g>
+    </svg>
+  </div>
+
+  <button id="r-resize" type="button" class="resize-handle" role="separator" aria-orientation="vertical" aria-label="Resize right sidebar" aria-valuemin="220" aria-valuemax="360" aria-valuenow="286" tabindex="0"></button>
+
+  <div id="right">
+    <div id="rtabs">
+      <button class="rt active" data-r="info">INFO</button>
+      <button class="rt" data-r="pkt">PACKET</button>
+      <button class="rt" data-r="osi">OSI</button>
+      <button class="rt" data-r="tcp">TCP</button>
+      <button class="rt" data-r="tools">TOOLS</button>
+      <button class="rt" data-r="vlan">VLAN</button>
+      <button class="rt" data-r="route">ROUTING</button>
+      <button class="rt" data-r="log">LOG</button>
+    </div>
+    <div id="rc"></div>
+  </div>
+</div>
+
+<!-- Bundled script (built to dist/) — falls back to source during development -->
+<script src="simulator.bundle.js"></script>
+<script>
+// Inline fallback for drawer toggles and keyboard shortcuts (ensures immediate availability)
+(function(){
+  const l=document.getElementById('toggle-left'), r=document.getElementById('toggle-right');
+  if(l){l.addEventListener('click',()=>{const open=document.body.classList.toggle('drawer-left-open'); l.setAttribute('aria-expanded',String(open)); if(open)document.body.classList.remove('drawer-right-open');});}
+  if(r){r.addEventListener('click',()=>{const open=document.body.classList.toggle('drawer-right-open'); r.setAttribute('aria-expanded',String(open)); if(open)document.body.classList.remove('drawer-left-open');});}
+  document.addEventListener('keydown',e=>{if(e.target && /input|textarea|select/i.test(e.target.tagName))return; if(e.code==='Space'){e.preventDefault();document.getElementById('rbtn')?.click();} else if(e.key==='f'||e.key==='F'){e.preventDefault();l?.click();} else if(e.key==='h'||e.key==='H'){e.preventDefault();r?.click();} else if(e.key==='c'||e.key==='C'){e.preventDefault();document.getElementById('connbtn')?.click();}});
+})();
+</script>
+</body>
+</html>
